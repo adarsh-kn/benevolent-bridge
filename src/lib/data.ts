@@ -7,6 +7,12 @@ export const mockUsers: Record<string, User> = {
     email: 'adarsh.p@example.com',
     avatarUrl: 'https://placehold.co/100x100/6FBFF2/424242.png',
   },
+  'donor-2': {
+    id: 'donor-2',
+    name: 'Rohan Mehta',
+    email: 'rohan.m@example.com',
+    avatarUrl: 'https://placehold.co/100x100/bf6ff2/424242.png',
+  },
   'recipient-1': {
     id: 'recipient-1',
     name: 'Priya Sharma',
@@ -113,9 +119,15 @@ export const addDonation = (donationData: {
     recipientId: string;
     amount: number;
     purpose: string;
+    newRecipientName?: string;
 }) => {
     const donor = mockUsers[donationData.donorId];
-    const recipient = mockUsers[donationData.recipientId];
+    let recipient = mockUsers[donationData.recipientId];
+
+    if (!recipient && donationData.newRecipientName) {
+        recipient = addRecipient(donationData.newRecipientName);
+    }
+
 
     if (!donor || !recipient) {
         throw new Error("Invalid donor or recipient ID");
@@ -125,7 +137,7 @@ export const addDonation = (donationData: {
         id: `donation-${mockDonations.length + 1}`,
         donorId: donationData.donorId,
         donorName: donor.name,
-        recipientId: donationData.recipientId,
+        recipientId: recipient.id,
         recipientName: recipient.name,
         amount: donationData.amount,
         date: new Date().toISOString().split('T')[0],

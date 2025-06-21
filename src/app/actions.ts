@@ -34,6 +34,7 @@ export async function createDonation(donationData: {
     recipientId: string;
     amount: number;
     purpose: string;
+    newRecipientName?: string;
 }) {
     addDonation(donationData);
     revalidatePath('/donors');

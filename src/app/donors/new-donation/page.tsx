@@ -26,6 +26,7 @@ export default function NewDonationPage() {
     const [isNewRecipientDialogOpen, setIsNewRecipientDialogOpen] = useState(false);
     const [newRecipientName, setNewRecipientName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isNew, setIsNew] = useState(false);
     
     const router = useRouter();
     const { toast } = useToast();
@@ -58,7 +59,7 @@ export default function NewDonationPage() {
         const updatedRecipients = getAllRecipients();
         setRecipients(updatedRecipients);
         setSelectedRecipient(newRecipient.id);
-        setNewRecipientName('');
+        setIsNew(true);
         setIsNewRecipientDialogOpen(false);
         toast({
             title: "Recipient Added",
@@ -103,6 +104,7 @@ export default function NewDonationPage() {
                 recipientId: selectedRecipient,
                 amount: donationAmount,
                 purpose: purpose,
+                newRecipientName: isNew ? newRecipientName : undefined,
             });
 
             toast({
@@ -136,7 +138,10 @@ export default function NewDonationPage() {
                         <div className="space-y-2">
                             <Label htmlFor="recipient">Recipient</Label>
                             <div className="flex gap-2">
-                                <Select onValueChange={setSelectedRecipient} value={selectedRecipient}>
+                                <Select onValueChange={(value) => {
+                                    setSelectedRecipient(value);
+                                    setIsNew(false);
+                                }} value={selectedRecipient}>
                                     <SelectTrigger id="recipient" className="h-12">
                                         <Users className="mr-2" />
                                         <SelectValue placeholder="Select a recipient" />
