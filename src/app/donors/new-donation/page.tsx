@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { getAllRecipients, addRecipient, getDonorUser } from '@/lib/data';
+import { getAllRecipients, getDonorUser } from '@/lib/data';
 import type { User } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
 import { createDonation } from '@/app/actions';
@@ -26,7 +26,6 @@ export default function NewDonationPage() {
     const [isNewRecipientDialogOpen, setIsNewRecipientDialogOpen] = useState(false);
     const [newRecipientName, setNewRecipientName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isNew, setIsNew] = useState(false);
     
     const router = useRouter();
     const { toast } = useToast();
@@ -55,15 +54,12 @@ export default function NewDonationPage() {
             });
             return;
         }
-        const newRecipient = addRecipient(newRecipientName);
-        const updatedRecipients = getAllRecipients();
-        setRecipients(updatedRecipients);
-        setSelectedRecipient(newRecipient.id);
-        setIsNew(true);
+        // Don't add recipient on client, just set name and clear selection
+        setSelectedRecipient(''); 
         setIsNewRecipientDialogOpen(false);
         toast({
-            title: "Recipient Added",
-            description: `${newRecipient.name} has been added to your recipients list.`,
+            title: "New Recipient Set",
+            description: `${newRecipientName} will be added upon donation.`,
         });
     };
 
@@ -79,7 +75,9 @@ export default function NewDonationPage() {
             return;
         }
 
-        if (!selectedRecipient && !isNew) {
+        const isAddingNew = newRecipientName.trim() !== '' && !selectedRecipient;
+
+        if (!selectedRecipient && !isAddingNew) {
              toast({
                 variant: "destructive",
                 title: "No Recipient Selected",
@@ -101,10 +99,10 @@ export default function NewDonationPage() {
         try {
             await createDonation({
                 donorId: donor.id,
-                recipientId: isNew ? '' : selectedRecipient,
+                recipientId: selectedRecipient,
                 amount: donationAmount,
                 purpose: purpose,
-                newRecipientName: isNew ? newRecipientName : undefined,
+                newRecipientName: isAddingNew ? newRecipientName : undefined,
             });
 
         } catch (error) {
@@ -133,7 +131,7 @@ export default function NewDonationPage() {
                             <div className="flex gap-2">
                                 <Select onValueChange={(value) => {
                                     setSelectedRecipient(value);
-                                    setIsNew(false);
+                                    setNewRecipientName(''); // Clear new recipient name if selecting from list
                                 }} value={selectedRecipient}>
                                     <SelectTrigger id="recipient" className="h-12">
                                         <Users className="mr-2" />
@@ -181,6 +179,11 @@ export default function NewDonationPage() {
                                     </DialogContent>
                                 </Dialog>
                             </div>
+                             {newRecipientName && !selectedRecipient && (
+                                <p className="text-sm text-muted-foreground p-2 bg-secondary rounded-md">
+                                    New recipient: <strong>{newRecipientName}</strong>
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
