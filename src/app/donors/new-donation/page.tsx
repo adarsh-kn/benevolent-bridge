@@ -61,7 +61,6 @@ export default function NewDonationPage() {
         setSelectedRecipient(newRecipient.id);
         setIsNew(true);
         setIsNewRecipientDialogOpen(false);
-        setNewRecipientName('');
         toast({
             title: "Recipient Added",
             description: `${newRecipient.name} has been added to your recipients list.`,
