@@ -10,9 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { getAllRecipients, addRecipient, addDonation, getDonorUser } from '@/lib/data';
+import { getAllRecipients, addRecipient, getDonorUser } from '@/lib/data';
 import type { User } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
+import { createDonation } from '@/app/actions';
 
 const presetAmounts = [2000, 5000, 10000, 25000];
 
@@ -24,6 +25,7 @@ export default function NewDonationPage() {
     const [selectedRecipient, setSelectedRecipient] = useState<string>('');
     const [isNewRecipientDialogOpen, setIsNewRecipientDialogOpen] = useState(false);
     const [newRecipientName, setNewRecipientName] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     const router = useRouter();
     const { toast } = useToast();
@@ -64,7 +66,7 @@ export default function NewDonationPage() {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const donationAmount = parseFloat(amount);
         if (isNaN(donationAmount) || donationAmount <= 0) {
@@ -94,19 +96,31 @@ export default function NewDonationPage() {
             return;
         }
         
-        addDonation({
-            donorId: donor.id,
-            recipientId: selectedRecipient,
-            amount: donationAmount,
-            purpose: purpose,
-        });
+        setIsSubmitting(true);
+        try {
+            await createDonation({
+                donorId: donor.id,
+                recipientId: selectedRecipient,
+                amount: donationAmount,
+                purpose: purpose,
+            });
 
-        toast({
-            title: "Donation Successful!",
-            description: "Thank you for your generosity. Your donation has been recorded.",
-        });
+            toast({
+                title: "Donation Successful!",
+                description: "Thank you for your generosity. Your donation has been recorded.",
+            });
 
-        router.push('/donors');
+            router.push('/donors');
+        } catch (error) {
+            console.error(error);
+             toast({
+                variant: "destructive",
+                title: "Donation Failed",
+                description: "Something went wrong. Please try again.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -221,9 +235,9 @@ export default function NewDonationPage() {
                                 </div>
                             </Button>
                         </div>
-                         <Button type="submit" size="lg" className="w-full h-14 text-lg">
+                         <Button type="submit" size="lg" className="w-full h-14 text-lg" disabled={isSubmitting}>
                             <HandHeart className="mr-2" />
-                            Donate Rs. {amount || '0.00'}
+                            {isSubmitting ? 'Processing...' : `Donate Rs. ${amount || '0.00'}`}
                         </Button>
                     </form>
                 </CardContent>
