@@ -3,8 +3,8 @@ import type { User, Donation } from './types';
 export const mockUsers: Record<string, User> = {
   'donor-1': {
     id: 'donor-1',
-    name: 'Alex Johnson',
-    email: 'alex.j@example.com',
+    name: 'Adarsh',
+    email: 'adarsh@example.com',
     avatarUrl: 'https://placehold.co/100x100/6FBFF2/424242.png',
   },
   'recipient-1': {
@@ -19,7 +19,7 @@ export const mockDonations: Donation[] = [
   {
     id: 'donation-1',
     donorId: 'donor-1',
-    donorName: 'Alex Johnson',
+    donorName: 'Adarsh',
     recipientId: 'recipient-1',
     recipientName: 'Maria Garcia',
     amount: 150.0,
@@ -31,7 +31,7 @@ export const mockDonations: Donation[] = [
   {
     id: 'donation-2',
     donorId: 'donor-1',
-    donorName: 'Alex Johnson',
+    donorName: 'Adarsh',
     recipientId: 'recipient-1',
     recipientName: 'Maria Garcia',
     amount: 200.0,
@@ -54,7 +54,7 @@ export const mockDonations: Donation[] = [
   {
     id: 'donation-4',
     donorId: 'donor-1',
-    donorName: 'Alex Johnson',
+    donorName: 'Adarsh',
     recipientId: 'recipient-2',
     recipientName: 'Community Kitchen',
     amount: 300.0,
