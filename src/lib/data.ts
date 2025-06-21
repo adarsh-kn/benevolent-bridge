@@ -80,14 +80,14 @@ export let mockDonations: Donation[] = [
     purpose: 'To provide warm meals for the homeless during the week.',
     status: 'Pending',
   },
-];
+].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 export const getDonationsByDonor = (donorId: string): Donation[] => {
-  return mockDonations.filter((d) => d.donorId === donorId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return mockDonations.filter((d) => d.donorId === donorId);
 };
 
 export const getDonationsByRecipient = (recipientId: string): Donation[] => {
-  return mockDonations.filter((d) => d.recipientId === recipientId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return mockDonations.filter((d) => d.recipientId === recipientId);
 };
 
 export const getDonationById = (donationId: string): Donation | undefined => {
@@ -146,7 +146,8 @@ export const addDonation = (donationData: {
         status: 'Pending',
     };
 
-    mockDonations.unshift(newDonation);
+    mockDonations.push(newDonation);
+    mockDonations.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return newDonation;
 }
 
