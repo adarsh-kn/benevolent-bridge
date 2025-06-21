@@ -122,12 +122,13 @@ export const addDonation = (donationData: {
     newRecipientName?: string;
 }) => {
     const donor = mockUsers[donationData.donorId];
-    let recipient = mockUsers[donationData.recipientId];
+    let recipient: User | undefined;
 
-    if (!recipient && donationData.newRecipientName) {
+    if (donationData.newRecipientName) {
         recipient = addRecipient(donationData.newRecipientName);
+    } else {
+        recipient = mockUsers[donationData.recipientId];
     }
-
 
     if (!donor || !recipient) {
         throw new Error("Invalid donor or recipient ID");

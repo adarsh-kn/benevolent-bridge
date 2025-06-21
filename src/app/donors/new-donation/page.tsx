@@ -79,7 +79,7 @@ export default function NewDonationPage() {
             return;
         }
 
-        if (!selectedRecipient) {
+        if (!selectedRecipient && !isNew) {
              toast({
                 variant: "destructive",
                 title: "No Recipient Selected",
@@ -101,7 +101,7 @@ export default function NewDonationPage() {
         try {
             await createDonation({
                 donorId: donor.id,
-                recipientId: selectedRecipient,
+                recipientId: isNew ? '' : selectedRecipient,
                 amount: donationAmount,
                 purpose: purpose,
                 newRecipientName: isNew ? newRecipientName : undefined,
