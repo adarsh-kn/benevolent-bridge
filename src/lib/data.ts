@@ -13,9 +13,21 @@ export const mockUsers: Record<string, User> = {
     email: 'priya.s@example.com',
     avatarUrl: 'https://placehold.co/100x100/A2E8A5/424242.png',
   },
+  'recipient-2': {
+    id: 'recipient-2',
+    name: 'Seva Kitchen',
+    email: 'seva.kitchen@example.com',
+    avatarUrl: 'https://placehold.co/100x100/f2bf6f/424242.png',
+  },
+  'recipient-3': {
+    id: 'recipient-3',
+    name: 'Gyan Foundation',
+    email: 'gyan.foundation@example.com',
+    avatarUrl: 'https://placehold.co/100x100/e8a2a2/424242.png',
+  }
 };
 
-export const mockDonations: Donation[] = [
+export let mockDonations: Donation[] = [
   {
     id: 'donation-1',
     donorId: 'donor-1',
@@ -65,11 +77,11 @@ export const mockDonations: Donation[] = [
 ];
 
 export const getDonationsByDonor = (donorId: string): Donation[] => {
-  return mockDonations.filter((d) => d.donorId === donorId);
+  return mockDonations.filter((d) => d.donorId === donorId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
 export const getDonationsByRecipient = (recipientId: string): Donation[] => {
-  return mockDonations.filter((d) => d.recipientId === recipientId);
+  return mockDonations.filter((d) => d.recipientId === recipientId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };
 
 export const getDonationById = (donationId: string): Donation | undefined => {
@@ -78,3 +90,49 @@ export const getDonationById = (donationId: string): Donation | undefined => {
 
 export const getDonorUser = (): User => mockUsers['donor-1'];
 export const getRecipientUser = (): User => mockUsers['recipient-1'];
+
+
+export const getAllRecipients = (): User[] => {
+    return Object.values(mockUsers).filter((user) => user.id.startsWith('recipient-'));
+};
+
+export const addRecipient = (name: string): User => {
+    const newId = `recipient-${Object.values(mockUsers).filter(u => u.id.startsWith('recipient-')).length + 1}`;
+    const newUser: User = {
+        id: newId,
+        name: name,
+        email: `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        avatarUrl: `https://placehold.co/100x100/cccccc/424242.png`,
+    };
+    mockUsers[newId] = newUser;
+    return newUser;
+};
+
+export const addDonation = (donationData: {
+    donorId: string;
+    recipientId: string;
+    amount: number;
+    purpose: string;
+}) => {
+    const donor = mockUsers[donationData.donorId];
+    const recipient = mockUsers[donationData.recipientId];
+
+    if (!donor || !recipient) {
+        throw new Error("Invalid donor or recipient ID");
+    }
+
+    const newDonation: Donation = {
+        id: `donation-${mockDonations.length + 1}`,
+        donorId: donationData.donorId,
+        donorName: donor.name,
+        recipientId: donationData.recipientId,
+        recipientName: recipient.name,
+        amount: donationData.amount,
+        date: new Date().toISOString().split('T')[0],
+        purpose: donationData.purpose,
+        status: 'Pending',
+    };
+
+    mockDonations.unshift(newDonation);
+    return newDonation;
+}
