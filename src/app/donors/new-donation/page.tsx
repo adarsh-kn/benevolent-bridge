@@ -61,6 +61,7 @@ export default function NewDonationPage() {
         setSelectedRecipient(newRecipient.id);
         setIsNew(true);
         setIsNewRecipientDialogOpen(false);
+        setNewRecipientName('');
         toast({
             title: "Recipient Added",
             description: `${newRecipient.name} has been added to your recipients list.`,
@@ -107,12 +108,6 @@ export default function NewDonationPage() {
                 newRecipientName: isNew ? newRecipientName : undefined,
             });
 
-            toast({
-                title: "Donation Successful!",
-                description: "Thank you for your generosity. Your donation has been recorded.",
-            });
-
-            router.push('/donors');
         } catch (error) {
             console.error(error);
              toast({
@@ -120,7 +115,6 @@ export default function NewDonationPage() {
                 title: "Donation Failed",
                 description: "Something went wrong. Please try again.",
             });
-        } finally {
             setIsSubmitting(false);
         }
     };

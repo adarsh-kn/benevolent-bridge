@@ -7,6 +7,7 @@ import {
 import { addDonation } from "@/lib/data";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { redirect } from "next/navigation";
 
 const SuggestionInputSchema = z.string().min(10);
 
@@ -38,4 +39,5 @@ export async function createDonation(donationData: {
 }) {
     addDonation(donationData);
     revalidatePath('/donors');
+    redirect('/donors');
 }
