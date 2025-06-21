@@ -28,7 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Calendar, IndianRupee, Info, Sparkles, User } from "lucide-react";
+import { Calendar, Wallet, Info, Sparkles, User } from "lucide-react";
 
 const formSchema = z.object({
   usageDetails: z.string().min(20, {
@@ -121,7 +121,7 @@ export default function RecipientDonationDetailsPage({
     <div className="max-w-4xl mx-auto space-y-6">
        <div>
         <h1 className="text-3xl font-bold font-headline">Donation Details</h1>
-        <p className="text-muted-foreground">From {donation.donorName} for ₹{donation.amount.toFixed(2)}</p>
+        <p className="text-muted-foreground">From {donation.donorName} for Rs. {donation.amount.toFixed(2)}</p>
       </div>
 
        <Card>
@@ -131,10 +131,10 @@ export default function RecipientDonationDetailsPage({
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-3 gap-4 text-sm">
              <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-              <IndianRupee className="w-5 h-5 text-primary" />
+              <Wallet className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-muted-foreground">Amount</p>
-                <p className="font-semibold text-lg">₹{donation.amount.toFixed(2)}</p>
+                <p className="font-semibold text-lg">Rs. {donation.amount.toFixed(2)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">

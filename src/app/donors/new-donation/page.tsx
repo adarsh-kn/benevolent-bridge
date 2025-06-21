@@ -38,7 +38,7 @@ export default function NewDonationPage() {
             return;
         }
 
-        console.log(`Donating ₹${donationAmount}`);
+        console.log(`Donating Rs. ${donationAmount}`);
         // Simulate payment processing
         toast({
             title: "Processing Donation...",
@@ -68,7 +68,7 @@ export default function NewDonationPage() {
                                     className="h-16 text-xl"
                                     onClick={() => handlePresetClick(preset)}
                                 >
-                                    ₹{preset}
+                                    Rs. {preset}
                                 </Button>
                             ))}
                         </div>
@@ -95,7 +95,7 @@ export default function NewDonationPage() {
                         </div>
                          <Button type="submit" size="lg" className="w-full h-14 text-lg">
                             <HandHeart className="mr-2" />
-                            Donate ₹{amount || '0.00'}
+                            Donate Rs. {amount || '0.00'}
                         </Button>
                     </form>
                 </CardContent>
