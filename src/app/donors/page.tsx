@@ -58,7 +58,7 @@ export default function DonorDashboard() {
               {donations.map((donation) => (
                 <TableRow key={donation.id}>
                   <TableCell className="font-medium">{donation.recipientName}</TableCell>
-                  <TableCell className="text-right">${donation.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{donation.amount.toFixed(2)}</TableCell>
                   <TableCell>{new Date(donation.date).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Badge variant={donation.status === 'Reported' ? 'default' : 'secondary'} className={donation.status === 'Reported' ? 'bg-accent text-accent-foreground' : ''}>

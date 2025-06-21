@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Calendar, DollarSign, Edit, User, Info } from "lucide-react";
+import { Calendar, IndianRupee, Edit, User, Info } from "lucide-react";
 
 export default function DonorDonationDetailsPage({ params }: { params: { id: string } }) {
   const donation = getDonationById(params.id);
@@ -36,10 +36,10 @@ export default function DonorDonationDetailsPage({ params }: { params: { id: str
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
-              <DollarSign className="w-5 h-5 text-primary" />
+              <IndianRupee className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-muted-foreground">Amount</p>
-                <p className="font-semibold text-lg">${donation.amount.toFixed(2)}</p>
+                <p className="font-semibold text-lg">₹{donation.amount.toFixed(2)}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
