@@ -3,9 +3,9 @@ import type { User, Donation } from './types';
 export const mockUsers: Record<string, User> = {
   'donor-1': {
     id: 'donor-1',
-    name: 'Adarsh Patel',
+    name: 'Adarsh KN',
     email: 'adarsh.p@example.com',
-    avatarUrl: 'https://placehold.co/100x100/6FBFF2/424242.png',
+    avatarUrl: 'https://placehold.co/100x100/A9A2F8/424242.png',
   },
   'donor-2': {
     id: 'donor-2',
@@ -17,7 +17,7 @@ export const mockUsers: Record<string, User> = {
     id: 'recipient-1',
     name: 'Priya Sharma',
     email: 'priya.s@example.com',
-    avatarUrl: 'https://placehold.co/100x100/A2E8A5/424242.png',
+    avatarUrl: 'https://placehold.co/100x100/FFB347/424242.png',
   },
   'recipient-2': {
     id: 'recipient-2',
@@ -37,7 +37,7 @@ export let mockDonations: Donation[] = [
   {
     id: 'donation-1',
     donorId: 'donor-1',
-    donorName: 'Adarsh Patel',
+    donorName: 'Adarsh KN',
     recipientId: 'recipient-1',
     recipientName: 'Priya Sharma',
     amount: 12500.0,
@@ -49,7 +49,7 @@ export let mockDonations: Donation[] = [
   {
     id: 'donation-2',
     donorId: 'donor-1',
-    donorName: 'Adarsh Patel',
+    donorName: 'Adarsh KN',
     recipientId: 'recipient-1',
     recipientName: 'Priya Sharma',
     amount: 15000.0,
@@ -72,7 +72,7 @@ export let mockDonations: Donation[] = [
   {
     id: 'donation-4',
     donorId: 'donor-1',
-    donorName: 'Adarsh Patel',
+    donorName: 'Adarsh KN',
     recipientId: 'recipient-2',
     recipientName: 'Seva Kitchen',
     amount: 25000.0,

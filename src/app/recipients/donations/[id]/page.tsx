@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, notFound } from "next/navigation";
-import { getDonationById, mockDonations } from "@/lib/data";
+import { getDonationById } from "@/lib/data";
 import type { Donation } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { getPurchaseSuggestion } from "@/app/actions";
+import { getPurchaseSuggestion, submitUsageReport } from "@/app/actions";
 
 import {
   Card,
@@ -45,7 +45,7 @@ export default function RecipientDonationDetailsPage({
 }) {
   const [donation, setDonation] = useState<Donation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -100,21 +100,28 @@ export default function RecipientDonationDetailsPage({
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitting report:", values);
-    // In a real app, you would update the database here.
-    // For this mock, we'll find the donation and update it in the mock array.
-    const donationIndex = mockDonations.findIndex(d => d.id === donation!.id);
-    if (donationIndex !== -1) {
-        mockDonations[donationIndex].usageDetails = values.usageDetails;
-        mockDonations[donationIndex].status = 'Reported';
-    }
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      await submitUsageReport({
+        donationId: donation!.id,
+        usageDetails: values.usageDetails,
+      });
 
-    toast({
-      title: "Report Submitted!",
-      description: "Thank you for your transparency. The donor has been notified.",
-    });
-    router.push("/recipients");
+      toast({
+        title: "Report Submitted!",
+        description: "Thank you for your transparency. The donor has been notified.",
+      });
+    } catch (error) {
+      console.error("Report submission error:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: "Could not submit the report. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -182,7 +189,7 @@ export default function RecipientDonationDetailsPage({
                         placeholder="e.g., Purchased 50 textbooks for 5th-grade students, provided 100 meals at the community kitchen..."
                         className="min-h-[120px]"
                         {...field}
-                        disabled={donation.status === 'Reported' && !isLoading}
+                        disabled={(donation.status === 'Reported' && !isLoading) || isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
@@ -197,13 +204,13 @@ export default function RecipientDonationDetailsPage({
                     type="button"
                     variant="outline"
                     onClick={handleSuggest}
-                    disabled={isLoading}
+                    disabled={isLoading || isSubmitting}
                 >
                     <Sparkles className="mr-2 h-4 w-4" />
                     {isLoading ? "Generating..." : "Suggest Details with AI"}
                 </Button>
-                <Button type="submit">
-                    {donation.status === 'Reported' ? 'Update Report' : 'Submit Report'}
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : (donation.status === 'Reported' ? 'Update Report' : 'Submit Report')}
                 </Button>
               </div>
             </form>
