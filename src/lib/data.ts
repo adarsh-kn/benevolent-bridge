@@ -4,7 +4,7 @@ export const mockUsers: Record<string, User> = {
   'donor-1': {
     id: 'donor-1',
     name: 'Adarsh KN',
-    email: 'adarsh.p@example.com',
+    email: 'adarsh.kn@example.com',
     avatarUrl: 'https://placehold.co/100x100/A9A2F8/424242.png',
   },
   'donor-2': {
@@ -116,7 +116,7 @@ export const addRecipient = (name: string): User => {
 
 export const addDonation = (donationData: {
     donorId: string;
-    recipientId: string;
+    recipientId?: string;
     amount: number;
     purpose: string;
     newRecipientName?: string;
@@ -126,7 +126,7 @@ export const addDonation = (donationData: {
 
     if (donationData.newRecipientName) {
         recipient = addRecipient(donationData.newRecipientName);
-    } else {
+    } else if (donationData.recipientId) {
         recipient = mockUsers[donationData.recipientId];
     }
 
@@ -149,3 +149,13 @@ export const addDonation = (donationData: {
     mockDonations.unshift(newDonation);
     return newDonation;
 }
+
+export const updateDonationReport = (donationId: string, usageDetails: string): Donation | null => {
+  const donationIndex = mockDonations.findIndex((d) => d.id === donationId);
+  if (donationIndex !== -1) {
+    mockDonations[donationIndex].status = 'Reported';
+    mockDonations[donationIndex].usageDetails = usageDetails;
+    return mockDonations[donationIndex];
+  }
+  return null;
+};

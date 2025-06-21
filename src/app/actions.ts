@@ -4,7 +4,7 @@ import {
   suggestPurchaseDetails,
   type SuggestPurchaseDetailsOutput,
 } from "@/ai/flows/suggest-purchase-details";
-import { addDonation, mockDonations } from "@/lib/data";
+import { addDonation, getDonorUser, updateDonationReport } from "@/lib/data";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { redirect } from "next/navigation";
@@ -30,14 +30,30 @@ export async function getPurchaseSuggestion(
   }
 }
 
-export async function createDonation(donationData: {
-  donorId: string;
-  recipientId: string;
-  amount: number;
-  purpose: string;
-  newRecipientName?: string;
-}) {
-  addDonation(donationData);
+export async function createDonation(formData: FormData) {
+  const donor = getDonorUser();
+
+  const data = {
+    amount: Number(formData.get('amount')),
+    purpose: formData.get('purpose') as string,
+    recipientId: formData.get('recipientId') as string,
+    newRecipientName: formData.get('newRecipientName') as string,
+  };
+
+  if (!data.amount || data.amount <= 0 || !data.purpose || (!data.recipientId && !data.newRecipientName)) {
+    // Basic server-side validation
+    // A more robust solution would return error messages to the client
+    throw new Error("Invalid donation data provided.");
+  }
+
+  addDonation({
+    donorId: donor.id,
+    amount: data.amount,
+    purpose: data.purpose,
+    recipientId: data.recipientId,
+    newRecipientName: data.newRecipientName,
+  });
+
   revalidatePath("/donors");
   redirect("/donors");
 }
@@ -58,13 +74,9 @@ export async function submitUsageReport(data: {
 }) {
   const validatedData = ReportSchema.parse(data);
 
-  const donationIndex = mockDonations.findIndex(
-    (d) => d.id === validatedData.donationId
-  );
-  if (donationIndex !== -1) {
-    mockDonations[donationIndex].usageDetails = validatedData.usageDetails;
-    mockDonations[donationIndex].status = "Reported";
-  } else {
+  const updated = updateDonationReport(validatedData.donationId, validatedData.usageDetails);
+  
+  if (!updated) {
     throw new Error("Donation not found");
   }
 

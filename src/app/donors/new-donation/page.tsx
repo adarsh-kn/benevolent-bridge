@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
 import { HandHeart, Landmark, UserPlus, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,25 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { getAllRecipients, getDonorUser } from '@/lib/data';
+import { getAllRecipients } from '@/lib/data';
 import type { User } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
 import { createDonation } from '@/app/actions';
 
 const presetAmounts = [2000, 5000, 10000, 25000];
+
+function SubmitButton({ amount }: { amount: string }) {
+    const { pending } = useFormStatus();
+    const donationAmount = parseFloat(amount) || 0;
+
+    return (
+        <Button type="submit" size="lg" className="w-full h-14 text-lg" disabled={pending || donationAmount <= 0}>
+            <HandHeart className="mr-2" />
+            {pending ? 'Processing...' : `Donate Rs. ${donationAmount.toFixed(2)}`}
+        </Button>
+    );
+}
+
 
 export default function NewDonationPage() {
     const [amount, setAmount] = useState('');
@@ -25,11 +38,8 @@ export default function NewDonationPage() {
     const [selectedRecipient, setSelectedRecipient] = useState<string>('');
     const [isNewRecipientDialogOpen, setIsNewRecipientDialogOpen] = useState(false);
     const [newRecipientName, setNewRecipientName] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const router = useRouter();
     const { toast } = useToast();
-    const donor = getDonorUser();
 
     useEffect(() => {
         setRecipients(getAllRecipients());
@@ -54,66 +64,12 @@ export default function NewDonationPage() {
             });
             return;
         }
-        // Don't add recipient on client, just set name and clear selection
         setSelectedRecipient(''); 
         setIsNewRecipientDialogOpen(false);
         toast({
             title: "New Recipient Set",
             description: `${newRecipientName} will be added upon donation.`,
         });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const donationAmount = parseFloat(amount);
-        if (isNaN(donationAmount) || donationAmount <= 0) {
-            toast({
-                variant: "destructive",
-                title: "Invalid Amount",
-                description: "Please enter a valid donation amount.",
-            });
-            return;
-        }
-
-        const isAddingNew = newRecipientName.trim() !== '' && !selectedRecipient;
-
-        if (!selectedRecipient && !isAddingNew) {
-             toast({
-                variant: "destructive",
-                title: "No Recipient Selected",
-                description: "Please select a recipient for your donation.",
-            });
-            return;
-        }
-        
-        if (!purpose.trim()) {
-             toast({
-                variant: "destructive",
-                title: "Purpose is Required",
-                description: "Please provide a purpose for your donation.",
-            });
-            return;
-        }
-        
-        setIsSubmitting(true);
-        try {
-            await createDonation({
-                donorId: donor.id,
-                recipientId: selectedRecipient,
-                amount: donationAmount,
-                purpose: purpose,
-                newRecipientName: isAddingNew ? newRecipientName : undefined,
-            });
-
-        } catch (error) {
-            console.error(error);
-             toast({
-                variant: "destructive",
-                title: "Donation Failed",
-                description: "Something went wrong. Please try again.",
-            });
-            setIsSubmitting(false);
-        }
     };
 
     return (
@@ -124,15 +80,20 @@ export default function NewDonationPage() {
                     <CardDescription>Your contribution makes a world of difference.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form action={createDonation} className="space-y-6">
                         
                         <div className="space-y-2">
                             <Label htmlFor="recipient">Recipient</Label>
                             <div className="flex gap-2">
-                                <Select onValueChange={(value) => {
-                                    setSelectedRecipient(value);
-                                    setNewRecipientName(''); // Clear new recipient name if selecting from list
-                                }} value={selectedRecipient}>
+                                <Select 
+                                    name="recipientId"
+                                    onValueChange={(value) => {
+                                        setSelectedRecipient(value);
+                                        setNewRecipientName('');
+                                    }} 
+                                    value={selectedRecipient}
+                                    disabled={!!newRecipientName}
+                                >
                                     <SelectTrigger id="recipient" className="h-12">
                                         <Users className="mr-2" />
                                         <SelectValue placeholder="Select a recipient" />
@@ -179,6 +140,7 @@ export default function NewDonationPage() {
                                     </DialogContent>
                                 </Dialog>
                             </div>
+                            <input type="hidden" name="newRecipientName" value={newRecipientName} />
                              {newRecipientName && !selectedRecipient && (
                                 <p className="text-sm text-muted-foreground p-2 bg-secondary rounded-md">
                                     New recipient: <strong>{newRecipientName}</strong>
@@ -212,16 +174,19 @@ export default function NewDonationPage() {
                                     step="0.01"
                                 />
                             </div>
+                            <input type="hidden" name="amount" value={amount} />
                         </div>
                         
                         <div className="space-y-2">
                             <Label htmlFor="purpose">Purpose of Donation</Label>
                             <Textarea
                                 id="purpose"
+                                name="purpose"
                                 placeholder="e.g., To fund meals for the homeless, for school supplies..."
                                 value={purpose}
                                 onChange={(e) => setPurpose(e.target.value)}
                                 className="min-h-[100px]"
+                                required
                             />
                         </div>
 
@@ -236,10 +201,7 @@ export default function NewDonationPage() {
                                 </div>
                             </Button>
                         </div>
-                         <Button type="submit" size="lg" className="w-full h-14 text-lg" disabled={isSubmitting}>
-                            <HandHeart className="mr-2" />
-                            {isSubmitting ? 'Processing...' : `Donate Rs. ${amount || '0.00'}`}
-                        </Button>
+                         <SubmitButton amount={amount} />
                     </form>
                 </CardContent>
             </Card>
